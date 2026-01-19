@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MR Doctor Tracker</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    min-height: 100vh;
+    background: #ffffff;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+h2 {
+    text-align: center;
+    margin: 0 0 12px 0;
+}
+
+#doctorSearch {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
+    margin-bottom: 12px;
+}
+
+.card {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.label {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.value {
+    font-size: 14px;
+    color: #555;
+    margin-top: 4px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>MR Doctor Tracker</h2>
+
+    <input 
+        type="text" 
+        id="doctorSearch" 
+        placeholder="Type Doctor Name..."
+    >
+
+    <div id="doctorData">
+        <div class="card">
+            <div class="value">Doctor name likho to details dikhegi</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const sheetId = "1w5skGcdw54UrRstVlpSUChhT71dAVG4EBOIOcxNKFmo";
+const sheetName = "Doctor Data";
+const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${sheetName}`;
+
+let rows = [];
+
+fetch(url)
+.then(res => res.text())
+.then(data => {
+    const json = JSON.parse(data.substring(47).slice(0, -2));
+    rows = json.table.rows;
+});
+
+/* Search logic */
+document.getElementById("doctorSearch").addEventListener("input", function(){
+    const search = this.value.toLowerCase().trim();
+    if(search.length < 2){
+        document.getElementById("doctorData").innerHTML = "";
+        return;
+    }
+
+    const match = rows.find(r =>
+        r.c[1]?.v?.toLowerCase().includes(search)
+    );
+
+    if(!match){
+        document.getElementById("doctorData").innerHTML = `
+            <div class="card">
+                <div class="value">No doctor found</div>
+            </div>`;
+        return;
+    }
+
+    const r = match.c;
+
+    document.getElementById("doctorData").innerHTML = `
+        <div class="card">
+            <span class="label">Doctor Name</span>
+            <div class="value">${r[1]?.v || ""}</div>
+        </div>
+
+        <div class="card">
+            <span class="label">Main Location</span>
+            <div class="value">${r[2]?.v || ""}</div>
+        </div>
+
+        <div class="card">
+            <span class="label">Sub Location 1</span>
+            <div class="value">${r[3]?.v || ""}</div></div>
+ <div class="card">
+<span class="label">Morning</span>
+            <div class="value">${r[4]?.v || ""}</div></div>
+ <div class="card">
+<span class="label">Evening</span>
+<div class="value"> ${r[5]?.v || ""}</div></div>
+ <div class="card">
+<span class="label">Call Day</span>
+            <div class="value">${r[6]?.v || ""}</div></div>
+ <div class="card">
+<span class="label">Available Day</span>
+            <div class="value">${r[7]?.v || ""}</div>
+        </div>
+
+        <div class="card">
+            <span class="label">Sub Location 2</span>
+            <div class="value">${r[8]?.v || ""}</div></div>
+            <div class="card"><span class="label">Morning</span><div class="value">${r[9]?.v || ""}</div></div>
+ <div class="card"><span class="label">Evening</span><div class="value">${r[10]?.v || ""}</div></div>
+            <div class="card"><span class="label">Call Day</span><div class="value">${r[11]?.v || ""}</div></div>
+            <div class="card"><span class="label">Available Day</span><div class="value">${r[12]?.v || ""}</div>
+        </div>
+    `;
+});
+</script>
+
+</body>
+</html>
